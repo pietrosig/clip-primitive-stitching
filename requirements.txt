@@ -1,0 +1,11 @@
+torch
+matplotlib
+transformers
+pillow
+numpy
+sentence_transformers
+tqdm
+swig
+jupyter
+cma
+git+https://github.com/nnaisense/pgpelib.git#egg=pgpelib
