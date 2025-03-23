@@ -36,13 +36,10 @@ def get_segment_imgs(SEGMENT_DIR, DIM):
     
     return segment_imgs
 
-def get_primitive_imgs(PRIMITIVES_DIR, SYNONYMS = None):
-    primitives_img_paths = {}
+def get_primitive_imgs(PRIMITIVES_DIR, DIM):
+    primitives_imgs = {}
     for filename in os.listdir(PRIMITIVES_DIR):
         if filename.lower().endswith(".png"):
-            spec_path(filename, primitives_img_paths)
+            spec_img(PRIMITIVES_DIR, filename, primitives_imgs, DIM)
     
-    if SYNONYMS:
-        add_synonyms(SYNONYMS, primitives_img_paths)
-
-    return primitives_img_paths
+    return primitives_imgs
