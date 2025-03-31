@@ -7,7 +7,7 @@ def pad_resize(img, dim):
 
 def spec_img(dir, name, dic, dim):
   # Assume name is of format name.png
-  dic[name.split('.')[0]] = pad_resize(Image.open(os.path.join(dir, name)), dim)
+  dic[name.split('.')[0]] = pad_resize(Image.open(os.path.join(dir, name)).convert('RGBA'), dim)
 
 
 def spec_path(dir, name, dic):
