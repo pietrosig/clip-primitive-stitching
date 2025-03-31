@@ -5,9 +5,7 @@ def sigmoid(x):
 
 
 def clip_sol(solution, max_val):
+    # Make the solution to be within the range of 0-1
     solution = solution + max_val
-
-    # Scale
-    solution[:, 2] = np.clip(solution[:, 2], 0.01, 1)
 
     return solution
