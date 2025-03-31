@@ -1,4 +1,85 @@
 from PIL import Image
+import torch.nn.functional as F
+import torch
+
+def differentiable_rasterize(image_list, positions, layers, canvas_dim):
+    """
+    Differentiably composites a list of images onto a canvas using affine transformations.
+    
+    Args:
+        image_list (list[Tensor]): List of image tensors, each of shape (C, H, W) or (H, W, C).
+        positions (Tensor): Tensor of shape (N, 4) (or (N, 3) if square) containing 
+                            normalized positions (x, y, h, w) with values in [0, 1]. 
+                            (Ensure positions.requires_grad is True.)
+        layers (list or Tensor): List of layer indices (lower layers are drawn first).
+        canvas_dim (tuple): (canvas_height, canvas_width)
+        
+    Returns:
+        Tensor: Composited canvas of shape (1, 4, canvas_height, canvas_width) with a grad_fn.
+    """
+    canvas_height, canvas_width = canvas_dim
+    device = positions.device
+
+    # Initialize canvas as zeros in float; use 4 channels (RGBA).
+    canvas = torch.zeros((1, 4, canvas_height, canvas_width), device=device)
+
+    # Sort the images, positions, and layers by layers (lowest first).
+    sorted_indices = sorted(range(len(layers)), key=lambda i: layers[i])
+    
+    for i in sorted_indices:
+        img = image_list[i]
+        pos = positions[i]  # shape: (4,) or (3,)
+
+        # Convert image to channel-first format if needed.
+        if img.ndim == 3 and img.shape[-1] in (3, 4):
+            img = img.permute(2, 0, 1)
+        
+        # If pos has 3 values, assume h == w.
+        if pos.shape[0] == 3:
+            pos = torch.cat([pos, pos[2:3]], dim=0)
+        
+        # Unpack normalized position and size: (x, y, h, w)
+        # (x, y) is the top-left corner in normalized coordinates.
+        px, py, ph, pw = pos
+
+        # Convert the top-left corner from normalized [0,1] to [-1,1] (for canvas grid).
+        left = 2 * px - 1  # differentiable
+        top  = 2 * py - 1  # differentiable
+
+        # The scaling factors to map the canvas region to image normalized coordinates.
+        scale_x = 1.0 / pw
+        scale_y = 1.0 / ph
+
+        # Compute translations so that the canvas region starting at (left, top) maps to -1.
+        trans_x = -1 - (left * scale_x)
+        trans_y = -1 - (top * scale_y)
+
+        # Instead of torch.tensor(), use torch.stack to keep gradients.
+        row1 = torch.stack([scale_x, torch.zeros_like(scale_x), trans_x])
+        row2 = torch.stack([torch.zeros_like(scale_y), scale_y, trans_y])
+        theta = torch.stack([row1, row2], dim=0).unsqueeze(0)  # shape: (1, 2, 3)
+
+        # Create a sampling grid for the canvas.
+        grid = F.affine_grid(theta, size=(1, img.shape[0], canvas_height, canvas_width), align_corners=True)
+        
+        # Add batch dimension to the image.
+        img_batch = img.unsqueeze(0)
+        # Sample the image using differentiable bilinear interpolation.
+        sampled_img = F.grid_sample(img_batch, grid, mode='bilinear', padding_mode='zeros', align_corners=True)
+        
+        # If image has 3 channels (RGB), add an alpha channel of ones.
+        if sampled_img.shape[1] == 3:
+            alpha = torch.ones_like(sampled_img[:, :1, :, :])
+            sampled_img = torch.cat([sampled_img, alpha], dim=1)
+        
+        # Composite the sampled image onto the canvas using the "over" operation:
+        # new_canvas = sampled_img + (1 - sampled_img_alpha) * canvas.
+        src_alpha = sampled_img[:, 3:4, :, :]
+        canvas = sampled_img + (1 - src_alpha) * canvas
+
+    return canvas
+
+
 
 def rasterize_shapes(shapes, positions, output_size=(800, 800)):
     """
