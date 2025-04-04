@@ -8,3 +8,4 @@ tqdm
 swig
 jupyter
 cma
+plotly
