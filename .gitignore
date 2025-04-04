@@ -169,3 +169,7 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# MacOS trash
+.DS_Store
+*/.DS_Store
