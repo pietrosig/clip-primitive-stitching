@@ -1,0 +1,81 @@
+\documentclass{article}
+
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{overpic}
+\usepackage{amssymb}
+
+\usepackage[accepted]{dlai2024}
+
+%%% STUDENTS: FILL IN WITH YOUR OWN INFORMATION
+\dlaititlerunning{Compositional Concept Synthesis via CLIP-Guided Primitive Stitching}
+
+\begin{document}
+
+\twocolumn[
+%%% STUDENTS: FILL IN WITH YOUR OWN INFORMATION
+\dlaititle{Compositional Concept Synthesis via CLIP-Guided Primitive Stitching}
+
+\begin{center}\today\end{center}
+
+\begin{dlaiauthorlist}
+%%% STUDENTS: FILL IN WITH YOUR OWN INFORMATION
+\dlaiauthor{Paolo Cursi}{}
+\dlaiauthor{Pietro Signorino}{}
+\end{dlaiauthorlist}
+
+%%% STUDENTS: FILL IN WITH YOUR OWN INFORMATION
+\dlaicorrespondingauthor{Paolo Cursi}{cursi.2155622@studenti.uniroma1.it}
+\dlaicorrespondingauthor{Pietro Signorino}{signorino.2149741@studenti.uniroma1.it}
+
+\vskip 0.3in
+]
+
+\printAffiliationsAndNotice{}
+
+\begin{abstract}
+%
+In this paper we explore the task of composing visual concepts from a set of given primitives, such as combining “person” and “umbrella” to form “a person under an umbrella.” Each primitive is represented as a visual element, and a composition function arranges them spatially to form a complete scene. To guide this composition, we use CLIP to evaluate how well the rasterized image of the composed scene aligns with a natural language description of the target concept. The optimization objective is to maximize the cosine similarity between the image embedding and the text embedding produced by CLIP. 
+%
+\end{abstract}
+
+% ------------------------------------------------------------------------------
+\section{Introduction}
+
+Our work focuses on the synthesis of complex visual concepts by stitching together a set of predefined primitives. Each target concept is associated with a collection of \( k \) primitives, which are arranged to maximize the cosine similarity between the generated image embedding and the corresponding text embedding produced by CLIP. Initially, we implemented this task using the \texttt{pgpelib} library, where each concept was directly mapped to its corresponding primitives.
+
+Early experiments revealed that our initial optimization methods were insufficient, leading us to explore alternative strategies. We discovered that the Covariance Matrix Adaptation (CMA) algorithm performed significantly better, improving the quality of the synthesized images in terms of their semantic alignment with the target descriptions.
+
+Despite the improvements provided by CMA, the performance of our method was hindered by a challenging loss function landscape. The loss, defined as the negative cosine similarity, exhibited many local maxima, which impeded the optimization process from converging to the global optimum. To address this, we modified the loss function by incorporating an additional component designed to smooth the landscape. This adjustment aimed to mitigate the effect of local maxima, thereby facilitating more robust convergence.
+
+While this enhanced approach yielded promising results, it also introduced certain limitations that will be discussed in detail in the following sections.
+
+
+
+% ------------------------------------------------------------------------------
+\section{Related Work}
+
+
+% ------------------------------------------------------------------------------
+\section{Method}
+
+% ------------------------------------------------------------------------------
+\section{Results}
+
+If this is your first time using \LaTeX, here are a few common instructions that you may find useful. Please read this while looking at the source code.
+
+
+% ------------------------------------------------------------------------------
+\section{Discussion and Conclusions}
+
+\paragraph*{Bibliography.}
+This is an example bibliographic reference~\cite{tian2022modernevolutionstrategiescreativity}. If you want to add more, you must edit the file ``references.bib''.
+
+
+\bibliography{references.bib}
+\bibliographystyle{dlai2024}
+
+\end{document}
+
