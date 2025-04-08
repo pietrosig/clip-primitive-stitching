@@ -64,22 +64,22 @@ Inspired by this work, we want to do something similar by composing visual scene
 % ------------------------------------------------------------------------------
 \section{Method}
 \begin{figure*}[ht]
-  \includegraphics[width=\textwidth]{./src/architecture.png}
-  \caption{The whole pipeline of our method. The prompt is shown in the \textit{red} box, while the two primitives are shown in the \textit{yellow} box.}
-  \label{fig:architecture}
+    \centering
+    \includegraphics[width=0.95\textwidth]{./src/architecture.png}
+    \caption{The whole pipeline of our method. We want the $k$ (in this case $2$) primitives shown in the \textit{yellow} box, to be rasterized to have a similar CLIP embedding as the prompt, shown in the \textit{red} box.}
+    \label{fig:architecture}
 \end{figure*}
 
 In order to stitch together $k$ primitives to form a scene, we need to define a few components: the scene configuration and the optimization strategy.
 
 \subsection{Scene Configuration \& Pipeline}
-We represent a scene configuration as a matrix of shape $\left(k, 5\right)$, where each row corresponds to one primitive and the five parameters describe its spatial attributes:  
+We represent a scene configuration as a matrix of shape $\left(k, 5\right)$ and each entry is bounded to be in the $[0, 1]$ range. Each row corresponds to one primitive and the five parameters describe its spatial attributes.   
 \begin{itemize}
-    \item \textbf{x, y}: the position of the primitive on the canvas;
-    \item \textbf{scale}: the relative size of the primitive;
-    \item \textbf{rotation}: the angle of rotation;
-    \item \textbf{layer}: the rendering order (i.e., which primitives appear in front).
+    \item \textbf{x, y}: the position of the top-right corner of the primitive with respect to the canvas size;
+    \item \textbf{scale}: the relative size of the primitive (i.e. a percentage of the full primitive size);
+    \item \textbf{rotation}: the angle of rotation, $0-365$ degrees normalized;
+    \item \textbf{layer}: the rendering order (i.e., which primitives appear in front). We order the rasterization process, such that primitives with smaller layer parameter will be rasterized first, hence be in the back.
 \end{itemize}
-Each parameter is bounded to be in the $[0, 1]$ range.
 We created a \texttt{rasterize} function, which uses these parameters and the primitives to compose the scene and rasterizes it into an image. This image is then fed into CLIP’s image encoder to compute its embedding. The cosine similarity between this image embedding and the text embedding of the target concept serves as the objective function.
 An overview of this pipeline is shown in Figure~\ref{fig:architecture}.
 
@@ -88,15 +88,23 @@ An overview of this pipeline is shown in Figure~\ref{fig:architecture}.
 To find a good configuration of the primitives, we first adopted a gradient-free optimization strategy using \textit{Covariance Matrix Adaptation Evolution Strategy}~\cite{hansen1996adapting} (CMA-ES). This algorithm iteratively samples configurations, evaluates them using the cosine similarity score, and updates a multivariate Gaussian distribution to bias future samples toward more promising regions in the search space.
 
 \subsection{Gradient-Based Approach}
-In parallel, we also experimented with a gradient-based optimization method. We created a \texttt{differentiable\_rasterize} function, which has some limitations: rotating the primitives was pretty hard, so we decided to implment it only if a preliminary test would have been promising. This function allowed us to compute gradients of the cosine similarity loss with respect to the primitive parameters and apply gradient descent to improve the layout.
+In parallel, we also experimented with a gradient-based optimization method. We created a new rasterization function which is differentiable and has some limitations: rotating the primitives was pretty hard, so we decided to implment it only if a preliminary test would have been promising. This function allowed us to compute gradients of the cosine similarity loss with respect to the primitive parameters and apply gradient descent to improve the layout.
 
 \subsection{Loss Function Exploration}
 After many experiments we found out that both methods often became stuck in poor local optima, so we decided to explore the loss function's landscape. This eventually led us to explore modifications to the loss in an effort to change the optimization surface, as detailed in the next section.
 
 % ------------------------------------------------------------------------------
 \section{Results}
+In this section we will report the results of each method individually, then some common improvements we applied to both of them and finally we will show the loss exploration we talked about in the previous section.
 
-TODO
+\subsection{Default approach}
+This approach is the one we implemented first, using the \texttt{CMA-ES} python library.
+For the gradient-based approach we just implemented the \texttt{differentiable\_rasterize} function (which operates on PyTorch tensors) and used the \texttt{Adam} optimizer to update the parameters of the primitives. This yielded poor results as shown in the figure. 
+
+\subsection{Loss Exploration}
+After these poor results with both methods, we decided to explore the loss function landscape. We found that the loss function was very noisy and had many local optima, which made it difficult for the optimization algorithms to converge to a good solution. An example is show in the figure. In order to plot the contour plot of the loss function, we choose a simple example "A person under un umbrella", that has two primitives: \textit{person} and \textit{umbrella}. We embedded every combination of $(x, y, scale)$ parameters with values $0.3 , 0.38, 0.46, 0.54, 0.62, 0.7$ for both primitives, while keeping the rotation and layer fixed. The loss function was computed for each combination and plotted in a contour plot. Of course, close points in this space are not guaranteed to be close in the original space, but still this is useful because it shows us how the majority of parameters combination yield the same cosine similarity.
+
+\subsection{Loss Improvements}
 
 
 % ------------------------------------------------------------------------------
