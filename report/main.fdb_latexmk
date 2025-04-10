@@ -1,15 +1,15 @@
 # Fdb version 4
-["bibtex main"] 1744307448.10736 "main.aux" "main.bbl" "main" 1744311062.35202 0
+["bibtex main"] 1744307448.10736 "main.aux" "main.bbl" "main" 1744322417.67361 0
   "./dlai2024.bst" 1744294501.24684 27123 391b17a7764c6e139758d2aa411ce75b ""
   "./references.bib" 1744307421.66834 1055 86c5d67acd7bebc4c3681088259c84ac ""
-  "main.aux" 1744311061.67667 851 52662e4b1f9d6996c99f0b1fa04b88de "pdflatex"
+  "main.aux" 1744322416.83106 851 52662e4b1f9d6996c99f0b1fa04b88de "pdflatex"
   (generated)
   "main.bbl"
   "main.blg"
   (rewritten before read)
-["pdflatex"] 1744311060.10853 "/home/pablo/Desktop/DL/dl_project/report/main.tex" "main.pdf" "main" 1744311062.35271 0
+["pdflatex"] 1744322414.76115 "/home/pablo/Desktop/DL/dl_project/report/main.tex" "main.pdf" "main" 1744322417.67416 0
   "/etc/texmf/web2c/texmf.cnf" 1727713722.13922 475 c0e671620eb5563b2130f56340a5fde8 ""
-  "/home/pablo/Desktop/DL/dl_project/report/main.tex" 1744311059.68166 9806 b47f10ac227c61e63c6d3e62c7d713de ""
+  "/home/pablo/Desktop/DL/dl_project/report/main.tex" 1744322414.30405 9801 64f24f88be0e7637bc18e8a88cb5de9b ""
   "/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc" 1165713224 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/adobe/courier/pcrr7t.tfm" 1136768653 960 379cc0019370a9e0208a0a3f949f847a ""
@@ -129,10 +129,10 @@
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1727713939 8215501 48023d267c4dccc016150187fd743533 ""
   "dlai2024.sty" 1744294501.24684 27113 e8a4cf9e006dda1a589120c25e39ebe3 ""
   "fancyhdr.sty" 1744294501.24684 20521 e5d13d98d57bd53d4fed3aa61bd29c86 ""
-  "main.aux" 1744311061.67667 851 52662e4b1f9d6996c99f0b1fa04b88de "pdflatex"
+  "main.aux" 1744322416.83106 851 52662e4b1f9d6996c99f0b1fa04b88de "pdflatex"
   "main.bbl" 1744307448.35719 1228 1103a0c40274e4e23d1911ac35b65610 "bibtex main"
-  "main.out" 1744311061.07466 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
-  "main.tex" 1744311059.68166 9806 b47f10ac227c61e63c6d3e62c7d713de ""
+  "main.out" 1744322416.04906 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+  "main.tex" 1744322414.30405 9801 64f24f88be0e7637bc18e8a88cb5de9b ""
   "src/architecture.png" 1744294501.24784 152413 daea8239d5d53027c97e07f1a830da03 ""
   (generated)
   "main.aux"

@@ -88,7 +88,7 @@ This algorithm is a gradient-free optimization method that uses a population of 
 This method did not yield good results as in the implementation of the ES-CLIP paper.
 
 \subsubsection{PGPE problem}
-We hipothesized that one of the reason can be found in the fact that in our problem the solutions have very \textit{sparse rewards}. It means that seampled points in the surroundings of a certain point in the solution space yelds inconsistent rewards values, which makes it difficult for the algorithm to find a direction to move in the search space
+We hipothesized that one of the reason can be found in the fact that in our problem the solutions have very \textbf{sparse rewards}. It means that seampled points in the surroundings of a certain point in the solution space yelds inconsistent rewards values, which makes it difficult for the algorithm to find a direction to move in the search space
 
 \subsection{CMA-ES Optimization}
 To find a good configuration of the primitives, we first adopted a gradient-free optimization strategy using \textit{Covariance Matrix Adaptation Evolution Strategy}~\cite{hansen1996adapting} (CMA-ES). This algorithm iteratively samples configurations, evaluates them using the cosine similarity score, and updates a multivariate Gaussian distribution to bias future samples toward more promising regions in the search space.
