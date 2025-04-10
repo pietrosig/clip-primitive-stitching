@@ -1,4 +1,4 @@
-\begin{thebibliography}{2}
+\begin{thebibliography}{3}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -14,5 +14,10 @@ Hansen, N. and Ostermeier, A.
 Tian, Y. and Ha, D.
 \newblock Modern evolution strategies for creativity: Fitting concrete images and abstract concepts, 2022.
 \newblock URL \url{https://arxiv.org/abs/2109.08857}.
+
+\bibitem[Toklu et~al.(2020)Toklu, Liskowski, and Srivastava]{toklu2020clipup}
+Toklu, N.~E., Liskowski, P., and Srivastava, R.~K.
+\newblock Clipup: A simple and powerful optimizer for distribution-based policy evolution.
+\newblock In \emph{International Conference on Parallel Problem Solving from Nature}, pp.\  515--527. Springer, 2020.
 
 \end{thebibliography}

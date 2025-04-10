@@ -45,21 +45,20 @@ In this paper we explore the task of creating a composite image given a natural 
 
 Our work focuses on the synthesis of complex composite image by stitching together a set of predefined primitives. Each target concept is associated with a collection of $k$ primitives, which are arranged to maximize the cosine similarity between the generated image embedding and the corresponding text embedding produced by CLIP. Initially, we implemented this task using the \texttt{pgpelib} library, where each concept was directly mapped to its corresponding primitives.
 
-Early experiments revealed that our initial optimization methods were insufficient, leading us to explore alternative strategies. We discovered that the Covariance Matrix Adaptation (CMA) algorithm performed significantly better, improving the quality of the synthesized images in terms of their semantic alignment with the target descriptions.
+Early experiments revealed that our initial optimization methods were insufficient, leading us to explore alternative strategies. We discovered that the Covariance Matrix Adaptation (CMA) algorithm performed slightly better.
 
 Despite the improvements provided by CMA, the performance of our method was hindered by a challenging loss function landscape. The loss, defined as the negative cosine similarity, exhibited many local maxima, which impeded the optimization process from converging to the global optimum. To address this, we modified the loss function by incorporating an additional component designed to smooth the landscape. This adjustment aimed to mitigate the effect of local maxima, thereby facilitating more robust convergence.
 
-While this enhanced approach yielded promising results, it also introduced certain limitations that will be discussed in detail in the following sections.
-
+While this enhanced approach yielded to better results, it also introduced certain limitations that will be discussed in detail in the following sections.
 
 % ------------------------------------------------------------------------------
 \section{Related Work}
 We based our work on the paper \textit{Modern Evolution Strategies for Creativity: Fitting Concrete Images and Abstract Concepts}~\cite{tian2022modernevolutionstrategiescreativity} (ES-CLIP). 
 
-ES-CLIP presents a method that leverages evolutionary strategies to optimize image generation based on CLIP’s joint embedding space. The so called \textit{population} is a set of triangles, each one represented by the position of the three vertices relative to a given canvas and a color. These features are optimized to maximize the cosine similarity between the CLIP embedding of the triangles rendered on the canvas and the CLIP embedding of a target concept. 
+ES-CLIP presents a method that leverages evolutionary strategies to optimize image generation based on CLIP’s joint embedding space. 
+An element in the \textit{population} is composed of a set of overlapping triangles eachone with its own vertex position and color. These features are optimized to maximize the cosine similarity between the CLIP embedding of the triangles rendered on the canvas and the CLIP embedding of a target prompt. 
 
 Inspired by this work, we want to do something similar by composing visual scenes from a set of semantic primitives, instead of triangles.
-
 
 % ------------------------------------------------------------------------------
 \section{Method}
@@ -70,19 +69,26 @@ Inspired by this work, we want to do something similar by composing visual scene
     \label{fig:architecture}
 \end{figure*}
 
-In order to stitch together $k$ primitives to form a scene, we need to define a few components: the scene configuration and the optimization strategy.
+In order to stitch together $k$ primitives to form a scene, we need to define a few components: the parameter to be optimized and the optimization strategy.
 
-\subsection{Scene Configuration \& Pipeline}
-We represent a scene configuration as a matrix of shape $\left(k, 5\right)$ and each entry is bounded to be in the $[0, 1]$ range. Each row corresponds to one primitive and the five parameters describe its spatial attributes.   
+\subsection{Parameters \& Pipeline}
+We represent the parameters as a matrix of shape $\left(k, 5\right)$ and each entry is bounded to be in the $[0, 1]$ range. Each row corresponds to one primitive and the five parameters describe its spatial attributes.   
 \begin{itemize}
     \item \textbf{x, y}: the position of the top-right corner of the primitive with respect to the canvas size;
     \item \textbf{scale}: the relative size of the primitive (i.e. a percentage of the full primitive size);
-    \item \textbf{rotation}: the angle of rotation, $0-365$ degrees normalized;
+    \item \textbf{rotation}: the angle of rotation $r \in [0,365]$ degrees normalized;
     \item \textbf{layer}: the rendering order (i.e., which primitives appear in front). We order the rasterization process, such that primitives with smaller layer parameter will be rasterized first, hence be in the back.
 \end{itemize}
-We created a \texttt{rasterize} function, which uses these parameters and the primitives to compose the scene and rasterizes it into an image. This image is then fed into CLIP’s image encoder to compute its embedding. The cosine similarity between this image embedding and the text embedding of the target concept serves as the objective function.
+We created a \texttt{rasterize} function, which uses these parameters and the primitives to compose the scene and rasterizes it into an image. This image is then fed into CLIP’s image encoder to compute its embedding. The cosine similarity between this image embedding and the text embedding of the target prompt serves as the objective function.
 An overview of this pipeline is shown in Figure~\ref{fig:architecture}.
 
+\subsection{PGPE Optimization}
+The first alghoritm we tried is PGPE (Probabilistic Gradient Population Evolution)~\cite{toklu2020clipup}, the one used in the ES-CLIP paper.
+This algorithm is a gradient-free optimization method that uses a population of candidate solutions to explore the search space.
+This method did not yield good results as in the implementation of the ES-CLIP paper.
+
+\subsubsection{PGPE problem}
+We hipothesized that one of the reason can be found in the fact that in our problem the solutions have very \textit{sparse rewards}. It means that seampled points in the surroundings of a certain point in the solution space yelds inconsistent rewards values, which makes it difficult for the algorithm to find a direction to move in the search space
 
 \subsection{CMA-ES Optimization}
 To find a good configuration of the primitives, we first adopted a gradient-free optimization strategy using \textit{Covariance Matrix Adaptation Evolution Strategy}~\cite{hansen1996adapting} (CMA-ES). This algorithm iteratively samples configurations, evaluates them using the cosine similarity score, and updates a multivariate Gaussian distribution to bias future samples toward more promising regions in the search space.
