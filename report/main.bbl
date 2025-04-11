@@ -7,23 +7,17 @@
 
 \bibitem[Hansen \& Ostermeier(1996)Hansen and Ostermeier]{hansen1996adapting}
 Hansen, N. and Ostermeier, A.
-\newblock Adapting arbitrary normal mutation distributions in evolution
-  strategies: The covariance matrix adaptation.
-\newblock In \emph{Proceedings of IEEE international conference on evolutionary
-  computation}, pp.\  312--317. IEEE, 1996.
+\newblock Adapting arbitrary normal mutation distributions in evolution strategies: The covariance matrix adaptation.
+\newblock In \emph{Proceedings of IEEE international conference on evolutionary computation}, pp.\  312--317. IEEE, 1996.
 
-\bibitem[Tian \& Ha(2022)Tian and
-  Ha]{tian2022modernevolutionstrategiescreativity}
+\bibitem[Tian \& Ha(2022)Tian and Ha]{tian2022modernevolutionstrategiescreativity}
 Tian, Y. and Ha, D.
-\newblock Modern evolution strategies for creativity: Fitting concrete images
-  and abstract concepts, 2022.
+\newblock Modern evolution strategies for creativity: Fitting concrete images and abstract concepts, 2022.
 \newblock URL \url{https://arxiv.org/abs/2109.08857}.
 
 \bibitem[Toklu et~al.(2020)Toklu, Liskowski, and Srivastava]{toklu2020clipup}
 Toklu, N.~E., Liskowski, P., and Srivastava, R.~K.
-\newblock Clipup: A simple and powerful optimizer for distribution-based policy
-  evolution.
-\newblock In \emph{International Conference on Parallel Problem Solving from
-  Nature}, pp.\  515--527. Springer, 2020.
+\newblock Clipup: A simple and powerful optimizer for distribution-based policy evolution.
+\newblock In \emph{International Conference on Parallel Problem Solving from Nature}, pp.\  515--527. Springer, 2020.
 
 \end{thebibliography}
