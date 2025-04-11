@@ -75,7 +75,19 @@ def differentiable_rasterize(image_list, positions, layers, canvas_dim):
         # Composite the sampled image onto the canvas using the "over" operation:
         # new_canvas = sampled_img + (1 - sampled_img_alpha) * canvas.
         src_alpha = sampled_img[:, 3:4, :, :]
-        canvas = sampled_img + (1 - src_alpha) * canvas
+        
+        # Convert sampled image to premultiplied form.
+        src_color = sampled_img[:, :3, :, :] * src_alpha
+        dst_color = canvas[:, :3, :, :] * canvas[:, 3:4, :, :]
+        dst_alpha = canvas[:, 3:4, :, :]
+
+        # Standard "over" operation for premultiplied alpha.
+        out_alpha = src_alpha + dst_alpha * (1 - src_alpha)
+        out_color = src_color + dst_color * (1 - src_alpha)
+
+        # Unpremultiply the color channels (avoid division by zero).
+        canvas = torch.cat([out_color / (out_alpha + 1e-8), out_alpha], dim=1)
+
 
     return canvas
 

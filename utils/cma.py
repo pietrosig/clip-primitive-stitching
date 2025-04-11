@@ -12,6 +12,6 @@ def clip_sol(solution, max_val):
     solution[:, 0:2] = solution[:, 0:2] * 1.5 - 0.5
 
     # scale in the [0.2, 1.2] range
-    solution[:, 2] = solution[:, 2] * 1.2 + 0.2
+    solution[:, 2] = solution[:, 2] * 1.5 + 0.2
 
     return solution
