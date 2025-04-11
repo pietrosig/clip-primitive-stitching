@@ -88,13 +88,22 @@ This algorithm is a gradient-free optimization method that uses a population of 
 This method did not yield good results as in the implementation of the ES-CLIP paper.
 
 \subsubsection{PGPE problem}
-We hipothesized that one of the reason can be found in the fact that in our problem the solutions have very \textbf{sparse rewards}. It means that seampled points in the surroundings of a certain point in the solution space yelds inconsistent rewards values, which makes it difficult for the algorithm to find a direction to move in the search space
+We hipothesized that one of the reason can be found in the fact that in our problem the solutions have very \textbf{sparse rewards}. It means that seampled points in the surroundings of a certain point in the solution space yelds inconsistent rewards values.
+If the best solution is far from the sampled points, the algorithm will not be able to reach it, since intermediate solutions do not provide an incremental improvement in the reward.
+It means it is difficult for the algorithm to find a direction to move in the search space.
 
 \subsection{CMA-ES Optimization}
-To find a good configuration of the primitives, we first adopted a gradient-free optimization strategy using \textit{Covariance Matrix Adaptation Evolution Strategy}~\cite{hansen1996adapting} (CMA-ES). This algorithm iteratively samples configurations, evaluates them using the cosine similarity score, and updates a multivariate Gaussian distribution to bias future samples toward more promising regions in the search space.
+To overcome the limitations of PGPE, we decided to use a more advanced Evolution Strategy implementation, the Covariance Matrix Adaptation Evolution Strategy (CMA-ES)~\cite{hansen1996adapting}.
+Compared to PGPE, CMA-ES uses a more sophisticated sempling algorithm, which prioritize directions where improvement has been observed updating a multivariate Gaussian distribution.
+Unfortunately even if it produces slightly better results compared to PGPE, this method do not brings a significant improvement. 
 
 \subsection{Gradient-Based Approach}
 In parallel, we also experimented with a gradient-based optimization method. We created a new rasterization function which is differentiable and has some limitations: rotating the primitives was pretty hard, so we decided to implment it only if a preliminary test would have been promising. This function allowed us to compute gradients of the cosine similarity loss with respect to the primitive parameters and apply gradient descent to improve the layout.
+Unfortunately it do not yielded good results as well.
+
+\subsubsection{The CLIP problem}
+Given the fact that both the gradient-based and the CMA-ES methods did not yield good results, we decided to investigate the problem further.
+
 
 \subsection{Loss Function Exploration}
 After many experiments we found out that both methods often became stuck in poor local optima, so we decided to explore the loss function's landscape. This eventually led us to explore modifications to the loss in an effort to change the optimization surface, as detailed in the next section.
