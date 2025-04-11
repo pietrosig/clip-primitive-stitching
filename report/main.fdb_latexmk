@@ -1,15 +1,15 @@
 # Fdb version 4
-["bibtex main"] 1744384737.83076 "main.aux" "main.bbl" "main" 1744384739.49437 0
+["bibtex main"] 1744396512.46847 "main.aux" "main.bbl" "main" 1744396716.87208 0
   "./dlai2024.bst" 1744294501.24684 27123 391b17a7764c6e139758d2aa411ce75b ""
   "./references.bib" 1744307421.66834 1055 86c5d67acd7bebc4c3681088259c84ac ""
-  "main.aux" 1744384739.07189 851 52662e4b1f9d6996c99f0b1fa04b88de "pdflatex"
+  "main.aux" 1744396716.48707 1242 f80833cfc8054198e6940a59204b8a24 "pdflatex"
   (generated)
   "main.bbl"
   "main.blg"
   (rewritten before read)
-["pdflatex"] 1744384738.00563 "/home/pablo/Desktop/DL/dl_project/report/main.tex" "main.pdf" "main" 1744384739.49458 0
+["pdflatex"] 1744396713.596 "/home/pablo/Desktop/DL/dl_project/report/main.tex" "main.pdf" "main" 1744396716.87259 0
   "/etc/texmf/web2c/texmf.cnf" 1727713722.13922 475 c0e671620eb5563b2130f56340a5fde8 ""
-  "/home/pablo/Desktop/DL/dl_project/report/main.tex" 1744384731.09585 10296 f651deefc03f7f495f4f6b7cd235e199 ""
+  "/home/pablo/Desktop/DL/dl_project/report/main.tex" 1744396713.28807 12508 7488abbd52770cb0d02957df48b86736 ""
   "/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc" 1165713224 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/adobe/courier/pcrr7t.tfm" 1136768653 960 379cc0019370a9e0208a0a3f949f847a ""
@@ -19,7 +19,6 @@
   "/usr/share/texlive/texmf-dist/fonts/tfm/adobe/times/ptmr7t.tfm" 1136768653 2124 2601a75482e9426d33db523edf23570a ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/adobe/times/ptmr8c.tfm" 1136768653 1352 fa28a7e6d323c65ce7d13d5342ff6be2 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/adobe/times/ptmr8r.tfm" 1136768653 4408 25b74d011a4c66b7f212c0cc3c90061b ""
-  "/usr/share/texlive/texmf-dist/fonts/tfm/adobe/times/ptmrc7t.tfm" 1136768653 2680 312a2d12b1f1df8ee0212e7ba1962402 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/adobe/times/ptmri7t.tfm" 1136768653 2288 f478fc8fed18759effb59f3dad7f3084 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/adobe/times/ptmri8r.tfm" 1136768653 4640 532ca3305aad10cc01d769f3f91f1029 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/adobe/times/ptmro7t.tfm" 1136768653 2212 ddd058020f70d31af08b213e40125079 ""
@@ -51,7 +50,6 @@
   "/usr/share/texlive/texmf-dist/fonts/vf/adobe/times/ptmb7t.vf" 1136768653 1372 788387fea833ef5963f4c5bffe33eb89 ""
   "/usr/share/texlive/texmf-dist/fonts/vf/adobe/times/ptmr7t.vf" 1136768653 1380 0ea3a3370054be6da6acd929ec569f06 ""
   "/usr/share/texlive/texmf-dist/fonts/vf/adobe/times/ptmr8c.vf" 1136768653 3556 8a9a6dcbcd146ef985683f677f4758a6 ""
-  "/usr/share/texlive/texmf-dist/fonts/vf/adobe/times/ptmrc7t.vf" 1136768653 1948 7330aeef3af211edff3b35fb2c12a0fd ""
   "/usr/share/texlive/texmf-dist/fonts/vf/adobe/times/ptmri7t.vf" 1136768653 1384 a9d8adaf491ce34e5fba99dc7bbe5f39 ""
   "/usr/share/texlive/texmf-dist/fonts/vf/adobe/times/ptmro7t.vf" 1136768653 1384 5daa35f30ad788d676a07a579b5db7fa ""
   "/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii" 1461363279 71627 94eb9990bed73c364d7f53f960cc8c5b ""
@@ -129,11 +127,15 @@
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1727713939 8215501 48023d267c4dccc016150187fd743533 ""
   "dlai2024.sty" 1744294501.24684 27113 e8a4cf9e006dda1a589120c25e39ebe3 ""
   "fancyhdr.sty" 1744294501.24684 20521 e5d13d98d57bd53d4fed3aa61bd29c86 ""
-  "main.aux" 1744384739.07189 851 52662e4b1f9d6996c99f0b1fa04b88de "pdflatex"
-  "main.bbl" 1744384737.99688 1228 1103a0c40274e4e23d1911ac35b65610 "bibtex main"
-  "main.out" 1744384738.66789 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
-  "main.tex" 1744384731.09585 10296 f651deefc03f7f495f4f6b7cd235e199 ""
+  "main.aux" 1744396716.48707 1242 f80833cfc8054198e6940a59204b8a24 "pdflatex"
+  "main.bbl" 1744396512.61707 1228 1103a0c40274e4e23d1911ac35b65610 "bibtex main"
+  "main.out" 1744396714.10107 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+  "main.tex" 1744396713.28807 12508 7488abbd52770cb0d02957df48b86736 ""
+  "src/GT.png" 1744391042.94403 536831 b37056e18488432bba607fff5e0a7bec ""
   "src/architecture.png" 1744294501.24784 152413 daea8239d5d53027c97e07f1a830da03 ""
+  "src/loss_contourplot.png" 1744392647.21007 1531567 8d5ba8a3ac7dce29e9ce15f117419a3d ""
+  "src/male.png" 1744391928.13307 76795 4212afc9367d31af1cc450cf301ef6c6 ""
+  "src/test-images.png" 1744395638.26307 3597458 6fbd8f18560d24512cf5c6e29cdb1566 ""
   (generated)
   "main.aux"
   "main.log"

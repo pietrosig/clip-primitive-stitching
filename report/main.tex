@@ -85,12 +85,7 @@ An overview of this pipeline is shown in Figure~\ref{fig:architecture}.
 \subsection{PGPE Optimization}
 The first alghoritm we tried is PGPE (Probabilistic Gradient Population Evolution)~\cite{toklu2020clipup}, the one used in the ES-CLIP paper.
 This algorithm is a gradient-free optimization method that uses a population of candidate solutions to explore the search space.
-This method did not yield good results as in the implementation of the ES-CLIP paper.
-
-\subsubsection{PGPE problem}
-We hipothesized that one of the reason can be found in the fact that in our problem the solutions have very \textbf{sparse rewards}. It means that seampled points in the surroundings of a certain point in the solution space yelds inconsistent rewards values.
-If the best solution is far from the sampled points, the algorithm will not be able to reach it, since intermediate solutions do not provide an incremental improvement in the reward.
-It means it is difficult for the algorithm to find a direction to move in the search space.
+This method did not yield good results as in the implementation of the ES-CLIP paper. We belive that one of the problems here are the \textbf{sparse rewards}, we will discuss this further in the next section.
 
 \subsection{CMA-ES Optimization}
 To overcome the limitations of PGPE, we decided to use a more advanced Evolution Strategy implementation, the Covariance Matrix Adaptation Evolution Strategy (CMA-ES)~\cite{hansen1996adapting}.
@@ -101,30 +96,67 @@ Unfortunately even if it produces slightly better results compared to PGPE, this
 In parallel, we also experimented with a gradient-based optimization method. We created a new rasterization function which is differentiable and has some limitations: rotating the primitives was pretty hard, so we decided to implment it only if a preliminary test would have been promising. This function allowed us to compute gradients of the cosine similarity loss with respect to the primitive parameters and apply gradient descent to improve the layout.
 Unfortunately it do not yielded good results as well.
 
-\subsubsection{The CLIP problem}
-Given the fact that both the gradient-based and the CMA-ES methods did not yield good results, we decided to investigate the problem further.
 
 
-\subsection{Loss Function Exploration}
-After many experiments we found out that both methods often became stuck in poor local optima, so we decided to explore the loss function's landscape. This eventually led us to explore modifications to the loss in an effort to change the optimization surface, as detailed in the next section.
+\section{Problems}
+In this section we will discuss the problems we encountered during the optimization process and why the ES methods didn't work as in the original paper.
 
-% ------------------------------------------------------------------------------
+\subsection{The Sparse Rewards Problem}
+We hipothesized that one of the reasons our approaches didn't work is the fact that in our problem the solutions have very \textbf{sparse rewards}. It means that seampled points in the surroundings of a certain point in the solution space yelds inconsistent rewards values and not a clear gradient direction.
+If the best solution is far from the sampled points, the algorithm will not be able to reach it, since intermediate solutions do not provide an incremental improvement in the reward.
+Therefore the loss landscape is very noisy, often inconsistent, has many local minimum and it is has a lot of "flat regions" (i.e., regions where the loss does not change much).
+It means it is difficult for the algorithm to find a path to reach the optimal solution without running into a local minimum.
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=0.8\textwidth]{./src/loss_contourplot.png}
+    \caption{Loss landscape of the function for the prompt "A person under an umbrella". }
+    \label{fig:landscape}
+\end{figure*}
+
+\subsection{The CLIP problem}
+We decided to investigate the sparse rewards problem further and we wondered why our loss landscape was so noisy. We found out that the CLIP model is not very good at distinguishing between similar images. 
+%If we are in a configuration very far from the optimal one
+Moreover in some cases the CLIP model is not able to determine which image is better than the other, even if one is the manually created one and the other is a meaningless composition of primitives as we can see an example in Figure \ref{fig:clip_problems}, the prompt used for the similarity computation is \textit{"A car on the road"}. The ground truth image (a) has a CLIP similarity score of $0.2675$ while the generated one (b) has a score of $0.2755$
+
+\begin{figure}[H]
+    \centering
+    \begin{tabular}{cc}
+        \includegraphics[width=0.45\columnwidth]{./src/GT.png} &
+        \includegraphics[width=0.45\columnwidth]{./src/male.png} \\
+        (a) & (b) \\
+    \end{tabular}
+    \caption{Examples demonstrating CLIP's inconsistency.\\ 
+    (a) The ground truth image\\
+    (b) The generated one}
+    \label{fig:clip_problems}
+\end{figure}
+
+\subsection{More on the loss landscape}
+After the observation we did before we decided to explore the loss function's landscape. In \autoref{fig:landscape}plotted the contour plot of the loss landscape. We choose a simple example "A person under un umbrella", that has two primitives: \textit{person} and \textit{umbrella}. We embedded every combination of $(x, y, scale)$ parameters with values $0.3 , 0.38, 0.46, 0.54, 0.62, 0.7$ for both primitives, while keeping the rotation and layer fixed.
+We confermed empirically that the loss function is very noisy, has many local optima and flat regions.
+To give a further proof of the loss flatness zones, we computed the \textit{Coefficent of variation} of the values we computed in \autoref{fig:landscape}. The coefficient of variation is a measure of the relative variability of a distribution, a low value indicates that the values are close to the mean. The Coefficent of variation is $0.0583$, it means that the values are very close to the mean and that the loss function is very flat.
+
+
 \section{Results}
-In this section we will report the results of each method individually, then some common improvements we applied to both of them and finally we will show the loss exploration we talked about in the previous section.
-
-\subsection{Default approach}
-This approach is the one we implemented first, using the \texttt{CMA-ES} python library.
-For the gradient-based approach we just implemented the \texttt{differentiable\_rasterize} function (which operates on PyTorch tensors) and used the \texttt{Adam} optimizer to update the parameters of the primitives. This yielded poor results as shown in the figure. 
-
-\subsection{Loss Exploration}
-After these poor results with both methods, we decided to explore the loss function landscape. We found that the loss function was very noisy and had many local optima, which made it difficult for the optimization algorithms to converge to a good solution. An example is show in the figure. In order to plot the contour plot of the loss function, we choose a simple example "A person under un umbrella", that has two primitives: \textit{person} and \textit{umbrella}. We embedded every combination of $(x, y, scale)$ parameters with values $0.3 , 0.38, 0.46, 0.54, 0.62, 0.7$ for both primitives, while keeping the rotation and layer fixed. The loss function was computed for each combination and plotted in a contour plot. Of course, close points in this space are not guaranteed to be close in the original space, but still this is useful because it shows us how the majority of parameters combination yield the same cosine similarity.
-
-\subsection{Loss Improvements}
+As we can see in \autoref{fig:results}, he image with the red background is the best result we obtained meanwhile the image with the red caption in the one with the highest similarity. The image with the highest fitness is not the best one conferming our hypothesis.
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=0.8\textwidth]{./src/test-images.png}
+    \caption{Results for each method with both the original and the modified loss function.}
+    \label{fig:results}
+\end{figure*}
 
 
-% ------------------------------------------------------------------------------
-\section{Discussion and Conclusions}
-TODO
+\section{Conclusions} 
+Despite implementing several optimization strategies, including PGPE, CMA-ES, and gradient-based methods, our results fell short of expectations. Our investigation revealed significant challenges that impeded the optimization process: 
+\begin{itemize}
+    \item sparse rewards in the solution space making convergence difficult
+    \item inconsistencies in CLIP's ability to discriminate between semantically meaningful and random arrangements
+    \item a highly non-convex loss landscape with numerous local optima and flat regions.
+\end{itemize}
+
+These findings suggest that future work should focus on developing more robust optimization algorithms specifically designed to navigate sparse reward landscapes. Additionally, incorporating auxiliary reward signals or hierarchical optimization approaches might help guide the search process more effectively. Pre-training on simpler compositions before attempting more complex scenes could also provide a more informed initialization for the optimization process.
 
 \bibliography{references.bib}
 \bibliographystyle{dlai2024}
