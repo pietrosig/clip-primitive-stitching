@@ -36,29 +36,25 @@
 
 \begin{abstract}
 %
-In this paper we explore the task of creating a composite image given a natural language prompt from a set of given primitives, such as combining “person” and “umbrella” to form “a person under an umbrella.” Each primitive is represented as a visual element, and a composition function arranges them spatially to form a complete scene. To guide this composition, we use CLIP to evaluate how well the rasterized image of the composed scene aligns with a natural language description of the target concept. The optimization objective is to maximize the cosine similarity between the image embedding and the text embedding produced by CLIP. 
+In this paper we explore the task of creating a composite image described by a natural language prompt from a set of given primitives, such as combining “person” and “umbrella” to form “a person under an umbrella.” Each primitive is represented as a visual element and a composition function arranges them spatially to form a complete scene. We use CLIP to guide this composition by evaluating how well the rasterized image of the composed scene aligns with the target natural language description. The optimization objective is to maximize the cosine similarity between the image embedding and the text embedding produced by CLIP.
 %
 \end{abstract}
 
 % ------------------------------------------------------------------------------
 \section{Introduction}
 
-Our work focuses on the synthesis of complex composite image by stitching together a set of predefined primitives. Each target concept is associated with a collection of $k$ primitives, which are arranged to maximize the cosine similarity between the generated image embedding and the corresponding text embedding produced by CLIP. Initially, we implemented this task using the \texttt{pgpelib} library, where each concept was directly mapped to its corresponding primitives.
+Our work focuses on the synthesis of complex composite image by stitching together a set of predefined primitives. Each target concept is associated with a collection of $k$ primitives, which are arranged to maximize the cosine similarity between the generated image embedding and the corresponding text embedding, both produced by CLIP~\cite{DBLP:journals/corr/abs-2103-00020}. 
 
-Early experiments revealed that our initial optimization methods were insufficient, leading us to explore alternative strategies. We discovered that the Covariance Matrix Adaptation (CMA) algorithm performed slightly better.
-
-Despite the improvements provided by CMA, the performance of our method was hindered by a challenging loss function landscape. The loss, defined as the negative cosine similarity, exhibited many local maxima, which impeded the optimization process from converging to the global optimum. To address this, we modified the loss function by incorporating an additional component designed to smooth the landscape. This adjustment aimed to mitigate the effect of local maxima, thereby facilitating more robust convergence.
-
-While this enhanced approach yielded to better results, it also introduced certain limitations that will be discussed in detail in the following sections.
+We tried to solve this challengin task by using three different optimization methods which did not work as expected. This was due by a challenging loss function landscape, which exhibited many local maxima, which impeded the optimization process from converging to the global optimum. We performed an investigation of this problem, which lead us to discover some interesting CLIP limitations that we will talk about in the next sections.
 
 % ------------------------------------------------------------------------------
 \section{Related Work}
 We based our work on the paper \textit{Modern Evolution Strategies for Creativity: Fitting Concrete Images and Abstract Concepts}~\cite{tian2022modernevolutionstrategiescreativity} (ES-CLIP). 
 
 ES-CLIP presents a method that leverages evolutionary strategies to optimize image generation based on CLIP’s joint embedding space. 
-An element in the \textit{population} is composed of a set of overlapping triangles eachone with its own vertex position and color. These features are optimized to maximize the cosine similarity between the CLIP embedding of the triangles rendered on the canvas and the CLIP embedding of a target prompt. 
+An element in the \textit{population} is composed of a set of overlapping triangles each one with its own vertex position and color. These features are optimized to maximize the cosine similarity between the CLIP embedding of the triangles rendered on a canvas and the CLIP embedding of a target prompt. 
 
-Inspired by this work, we want to do something similar by composing visual scenes from a set of semantic primitives, instead of triangles.
+Inspired by this work, we want to use CLIP's embedding space to compose visual scenes from a set of semantic primitives, instead of triangles.
 
 % ------------------------------------------------------------------------------
 \section{Method}
@@ -84,40 +80,37 @@ An overview of this pipeline is shown in Figure~\ref{fig:architecture}.
 
 \subsection{PGPE Optimization}
 The first alghoritm we tried is PGPE (Probabilistic Gradient Population Evolution)~\cite{toklu2020clipup}, the one used in the ES-CLIP paper.
-This algorithm is a gradient-free optimization method that uses a population of candidate solutions to explore the search space.
-This method did not yield good results as in the implementation of the ES-CLIP paper. We belive that one of the problems here are the \textbf{sparse rewards}, we will discuss this further in the next section.
+This algorithm is a gradient-free optimization method that uses a population of candidate solutions to explore the search space. 
+It maximizes the target function so we used a loss $\mathcal{L} = \text{cos\_sim(img, prompt)}$, i.e. the cosine similarity between the image embedding and the text embedding of the target prompt.
+This method did not yield good results as in the implementation of the ES-CLIP paper. We belive that the reason are \textit{sparse rewards}, we will discuss this further in the next section.
 
 \subsection{CMA-ES Optimization}
 To overcome the limitations of PGPE, we decided to use a more advanced Evolution Strategy implementation, the Covariance Matrix Adaptation Evolution Strategy (CMA-ES)~\cite{hansen1996adapting}.
-Compared to PGPE, CMA-ES uses a more sophisticated sempling algorithm, which prioritize directions where improvement has been observed updating a multivariate Gaussian distribution.
-Unfortunately even if it produces slightly better results compared to PGPE, this method do not brings a significant improvement. 
+Compared to PGPE, CMA-ES uses a more sophisticated sempling algorithm, which prioritize directions where improvement has been observed updating a multivariate Gaussian distribution. It also minimizes the target function so we used a loss $\mathcal{L} = 1 - \text{cos\_sim(img, prompt)}$.
+This methods typically works better with sparse rewards, but in our case it did not produce significant improvements, just slightly better results compared to PGPE.
 
 \subsection{Gradient-Based Approach}
 In parallel, we also experimented with a gradient-based optimization method. We created a new rasterization function which is differentiable and has some limitations: rotating the primitives was pretty hard, so we decided to implment it only if a preliminary test would have been promising. This function allowed us to compute gradients of the cosine similarity loss with respect to the primitive parameters and apply gradient descent to improve the layout.
 Unfortunately it do not yielded good results as well.
 
 
-
-\section{Problems}
-In this section we will discuss the problems we encountered during the optimization process and why the ES methods didn't work as in the original paper.
+\section{Approach Limitations}
+In this section we will discuss the problems we encountered during the optimization process and try to explain why they cannot be overcomed.
 
 \subsection{The Sparse Rewards Problem}
-We hipothesized that one of the reasons our approaches didn't work is the fact that in our problem the solutions have very \textbf{sparse rewards}. It means that seampled points in the surroundings of a certain point in the solution space yelds inconsistent rewards values and not a clear gradient direction.
+As stated earlier, we believe one issue with our approach is the well-known sparse rewards problem. This common challenge in Reinforcement Learning arises because even slight variations around a given point in the solution space can produce inconsistent reward values, making it difficult to optimize and causing the gradient to sometimes lead to suboptimal solutions.
 If the best solution is far from the sampled points, the algorithm will not be able to reach it, since intermediate solutions do not provide an incremental improvement in the reward.
-Therefore the loss landscape is very noisy, often inconsistent, has many local minimum and it is has a lot of "flat regions" (i.e., regions where the loss does not change much).
-It means it is difficult for the algorithm to find a path to reach the optimal solution without running into a local minimum.
+Therefore the loss landscape is very noisy, often inconsistent, has many local maxima (or minima) and it is has a lot of "flat regions" (i.e., regions where the loss does not change much).
 
 \begin{figure*}[t]
     \centering
     \includegraphics[width=0.8\textwidth]{./src/loss_contourplot.png}
-    \caption{Loss landscape of the function for the prompt "A person under an umbrella". }
+    \caption{Loss landscape of the function for the prompt "A person under an umbrella". The red star indicates the maxima.}
     \label{fig:landscape}
 \end{figure*}
 
 \subsection{The CLIP problem}
-We decided to investigate the sparse rewards problem further and we wondered why our loss landscape was so noisy. We found out that the CLIP model is not very good at distinguishing between similar images. 
-%If we are in a configuration very far from the optimal one
-Moreover in some cases the CLIP model is not able to determine which image is better than the other, even if one is the manually created one and the other is a meaningless composition of primitives as we can see an example in Figure \ref{fig:clip_problems}, the prompt used for the similarity computation is \textit{"A car on the road"}. The ground truth image (a) has a CLIP similarity score of $0.2675$ while the generated one (b) has a score of $0.2755$
+Another important problem we faced has to do with the CLIP embedding space. Given the embedding of a prompt, it can happen that it has an higher cosine similarity with a meaningless composition of primitives, instead of a manually crafted one. An example of this can be seen in Figure~\ref{fig:clip_problems}: the prompt used for the similarity computation is \textit{A car on the road}. The ground truth image (a) has a cosine similarity score of $0.2675$ while the random one (b) has a score of $0.2755$. This is a big problem, because we cannot rely on the cosine similarity to be an effective measure of how good our solution is.
 
 \begin{figure}[H]
     \centering
@@ -132,14 +125,13 @@ Moreover in some cases the CLIP model is not able to determine which image is be
     \label{fig:clip_problems}
 \end{figure}
 
-\subsection{More on the loss landscape}
-After the observation we did before we decided to explore the loss function's landscape. In \autoref{fig:landscape}plotted the contour plot of the loss landscape. We choose a simple example "A person under un umbrella", that has two primitives: \textit{person} and \textit{umbrella}. We embedded every combination of $(x, y, scale)$ parameters with values $0.3 , 0.38, 0.46, 0.54, 0.62, 0.7$ for both primitives, while keeping the rotation and layer fixed.
-We confermed empirically that the loss function is very noisy, has many local optima and flat regions.
-To give a further proof of the loss flatness zones, we computed the \textit{Coefficent of variation} of the values we computed in \autoref{fig:landscape}. The coefficient of variation is a measure of the relative variability of a distribution, a low value indicates that the values are close to the mean. The Coefficent of variation is $0.0583$, it means that the values are very close to the mean and that the loss function is very flat.
+\subsection{More on the Loss Landscape}
+After the previous observations, we decided to explore the loss function's landscape. We choose a simple example \textit{A person under un umbrella}, that has two primitives: \textit{person} and \textit{umbrella}. We embedded every combination of $(x, y, scale)$ parameters with values $0.3 , 0.38, 0.46, 0.54, 0.62, 0.7$ for both primitives, while keeping the rotation and layer fixed. In \autoref{fig:landscape} we plotted the contour plot of the loss landscape: even if the image with maximum prompt-similarity is well composed, meaningless compositions (e.g. purple triangle) have higher prompt-similarity than a meaningful one (blue circle).
+Furthermore, we calculated the \textit{Coefficient of Variation} (CV) of the all the loss values computed for this experiment. This coefficient is a measure of the relative variability of a distribution, a low value indicates that the values are close to the mean. We found a CV of $0.0583$ (or $\approx 5\%$), confirming that the loss function is pretty flat.
 
-
-\section{Results}
-As we can see in \autoref{fig:results}, he image with the red background is the best result we obtained meanwhile the image with the red caption in the one with the highest similarity. The image with the highest fitness is not the best one conferming our hypothesis.
+\section{Results \& Improvement}
+In order to deal with the problems described, we tried to change the loss function. In a particular use-case, where a background image is present we can add a term to the loss function, leading us to: $\mathcal{L'} = \text{cos\_sim(img, prompt)} * (1 - \gamma) + \text{T} * \gamma$. The new term $T$ is the count of empty pixels in the canvas, normalized to be in $[0,1]$. This term, weighted for $\gamma = 0.2$ will change the loss landscape, because rasterization with "empty" canvases will be penalized.
+By adding this term, only for rasterization that require a background we obtained some good results. An example is shown in \autoref{fig:results}, where we plot rasterizations done with all three methods, using the standard ($L$) and this new ($\mathcal{L'}$) loss. The parameters where also changed, in particular \textbf{x, y} where bounded to be in the $[-0.5,1]$ range and the \textbf{scale} to be in $[0.2, 1.5]$, in orther for the optimization method to be able to make the background image bigger and cover the whole screen. Other examples are shown in the project's folder.
 \begin{figure*}[t]
     \centering
     \begin{tabular}{cc}
@@ -147,21 +139,16 @@ As we can see in \autoref{fig:results}, he image with the red background is the 
         \includegraphics[width=0.2\textwidth]{./src/primitives.png}\\
         (a) & (b) \\
     \end{tabular}
-    \caption{Results for each method with both the original and the modified loss function.}
-
-        \label{fig:results}
+    \caption{Results for each method with both the original and the modified loss function, with prompt "A cloudy night sky with a full moon". The image with the red background is visually the best result, but it has less prompt-similarity (fitness) than the image with the fitness written in red.}
+    \label{fig:results}
 \end{figure*}
 
 
 \section{Conclusions} 
-Despite implementing several optimization strategies, including PGPE, CMA-ES, and gradient-based methods, our results fell short of expectations. Our investigation revealed significant challenges that impeded the optimization process: 
-\begin{itemize}
-    \item sparse rewards in the solution space making convergence difficult
-    \item inconsistencies in CLIP's ability to discriminate between semantically meaningful and random arrangements
-    \item a highly non-convex loss landscape with numerous local optima and flat regions.
-\end{itemize}
+Despite implementing several optimization strategies, our results fell short of expectations. Our investigation revealed significant challenges that impeded the optimization process: sparse rewards in the solution space making convergence difficult, inconsistencies in CLIP's ability to discriminate between semantically meaningful and random arrangements and a highly non-convex loss landscape with numerous local optima and flat regions.
 
-These findings suggest that future work should focus on developing more robust optimization algorithms specifically designed to navigate sparse reward landscapes. Additionally, incorporating auxiliary reward signals or hierarchical optimization approaches might help guide the search process more effectively. Pre-training on simpler compositions before attempting more complex scenes could also provide a more informed initialization for the optimization process.
+These findings suggest that future work should focus on developing more robust optimization algorithms specifically designed to navigate sparse reward landscapes. Additionally, incorporating auxiliary reward signals or hierarchical optimization approaches might help guide the search process more effectively. 
+Perhaps changing the embedding model, or fine-tuning CLIP to be "semantically reliable" could also significantly improve the performance of this approach.
 
 \bibliography{references.bib}
 \bibliographystyle{dlai2024}
