@@ -256,6 +256,11 @@ INPUT ./src/test-images.png
 INPUT ./src/test-images.png
 INPUT ./src/test-images.png
 INPUT ./src/test-images.png
+INPUT ./src/primitives.png
+INPUT ./src/primitives.png
+INPUT ./src/primitives.png
+INPUT ./src/primitives.png
+INPUT ./src/primitives.png
 INPUT ./main.bbl
 INPUT ./main.bbl
 INPUT main.bbl
