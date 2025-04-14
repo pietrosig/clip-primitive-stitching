@@ -9,3 +9,4 @@ swig
 jupyter
 cma
 plotly
+git+https://github.com/nnaisense/pgpelib.git#egg=pgpelib
